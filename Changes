@@ -1,5 +1,9 @@
 Revision history for Perl extension Sub::Inspector
 
+0.03 2012/05/05
+    - suppert class method interface
+      at Sat May  5 15:46 2012.
+
 0.02 2012/05/05
     - fix POD
       at Sat May  5 13:06 2012.

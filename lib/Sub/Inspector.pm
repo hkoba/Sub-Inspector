@@ -4,30 +4,46 @@ use strict;
 use warnings;
 use B ();
 use Carp ();
+our @CARP_NOT;
 use attributes;
 use Data::Dumper;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub new {
     my ($class, $code) = @_;
-    ref $code eq 'CODE' || do {
-        local $Data::Dumper::Indent = 1;
-        local $Data::Dumper::Terse  = 1;
-        Carp::croak "argument isn't a subroutine reference: " . Dumper($code);
-    };
-    bless +{ code => $_[1] }, $_[0]
+    _throw($code) unless ref($code) eq 'CODE';
+    bless +{ code => $code }, $class;
 }
 
-sub file { B::svref_2object($_[0]->{code})->GV->FILE }
-sub line { B::svref_2object($_[0]->{code})->GV->LINE }
-sub name { B::svref_2object($_[0]->{code})->GV->NAME }
+sub file { B::svref_2object(_code(@_))->GV->FILE }
+sub line { B::svref_2object(_code(@_))->GV->LINE }
+sub name { B::svref_2object(_code(@_))->GV->NAME }
 
-sub proto     { B::svref_2object($_[0]->{code})->PV }
+sub proto     { B::svref_2object(_code(@_))->PV }
 sub prototype { proto(@_) }
 
-sub attrs      { attributes::get($_[0]->{code}) }
+sub attrs      { attributes::get(_code(@_)) }
 sub attributes { attrs(@_) }
+
+sub _throw {
+    local $Data::Dumper::Indent = 1;
+    local $Data::Dumper::Terse  = 1;
+    local @CARP_NOT = (__PACKAGE__);
+    Carp::croak "argument isn't a subroutine reference: " . Dumper($_[0]);
+}
+
+sub _code {
+    my ($stuff, $arg) = @_;
+    # instance method
+    if (ref($stuff) eq __PACKAGE__) {
+        return $stuff->{code};
+    # calss method
+    } elsif (defined($stuff) && $stuff eq __PACKAGE__) {
+        return $arg if (ref($arg) eq 'CODE');
+        _throw($arg);
+    }
+}
 
 1;
 __END__
@@ -40,7 +56,8 @@ Sub::Inspector - get infomation (prototype, attributes, name, etc) from a subrou
 
     use Sub::Inspector;
 
-    # get file, line, name
+
+    # get file, line, name (oo interface)
 
     use File::Spec;
     my $code = File::Spec->can('canonpath');
@@ -50,20 +67,26 @@ Sub::Inspector - get infomation (prototype, attributes, name, etc) from a subrou
     print $inspector->line; #=> 71
     print $inspector->name; #=> 'canonpath'
 
+    # class method interface
+
+    print Sub::Inspector->file($code); #=> '/Users/Cside/perl5/ ... /File/Spec/Unix.pm'
+    print Sub::Inspector->line($code); #=> 71
+    print Sub::Inspector->name($code); #=> 'canonpath'
+
+
     # get prototype
 
     use Try::Tiny qw(try);
-    my $inspector2 = Sub::Inspector->new(\&try);
 
-    print $inspector2->proto; #=> '&;@'
+    print Sub::Inspector->proto(\&try); #=> '&;@'
+
 
     # get attributes
 
     use AnyEvent::Handle;
-    my $code3 = AnyEvent::Handle->can('rbuf');
-    my $inspector3 = Sub::Inspector->new($code3);
+    my $code2 = AnyEvent::Handle->can('rbuf');
 
-    print $inspector3->attrs; #=> ('lvalue')
+    print Sub::Inspector->attrs($code2); #=> ('lvalue')
 
 =head1 DESCRIPTION
 
@@ -71,6 +94,8 @@ This module enable to get metadata (prototype, attributes, method name, etc) fro
 We can get them by the buit-in module, B.pm. However, it is a bit difficult to memorize how to use it.
 
 =head1 Functions
+
+NOTE: You can call each method whether as instance method or as class method.
 
 =over
 
