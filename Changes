@@ -1,5 +1,9 @@
 Revision history for Perl extension Sub::Inspector
 
+0.02 2012/05/05
+    - fix POD
+      at Sat May  5 13:06 2012.
+
 0.01 2012/05/05
     - original version
-      at Sat May  5 10:13:43 2012.
+      at Sat May  5 10:13 2012.

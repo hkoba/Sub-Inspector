@@ -7,7 +7,7 @@ use Carp ();
 use attributes;
 use Data::Dumper;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub new {
     my ($class, $code) = @_;
@@ -34,11 +34,7 @@ __END__
 
 =head1 NAME
 
-Sub::Inspector - get infomation from a subroutine reference
-
-=head1 VERSION
-
-This document describes Sub::Inspector version 0.01.
+Sub::Inspector - get infomation (prototype, attributes, name, etc) from a subroutine reference
 
 =head1 SYNOPSIS
 
@@ -56,7 +52,7 @@ This document describes Sub::Inspector version 0.01.
 
     # get prototype
 
-    use Try::Tiny;
+    use Try::Tiny qw(try);
     my $inspector2 = Sub::Inspector->new(\&try);
 
     print $inspector2->proto; #=> '&;@'
@@ -64,8 +60,8 @@ This document describes Sub::Inspector version 0.01.
     # get attributes
 
     use AnyEvent::Handle;
-    my $code = AnyEvent::Handle->can('rbuf');
-    my $inspector3 = Sub::Inspector->new(\&try);
+    my $code3 = AnyEvent::Handle->can('rbuf');
+    my $inspector3 = Sub::Inspector->new($code3);
 
     print $inspector3->attrs; #=> ('lvalue')
 
@@ -74,9 +70,7 @@ This document describes Sub::Inspector version 0.01.
 This module enable to get metadata (prototype, attributes, method name, etc) from a coderef.
 We can get them by the buit-in module, B.pm. However, it is a bit difficult to memorize how to use it.
 
-=head1 INTERFACE
-
-=head2 Methods
+=head1 Functions
 
 =over
 
