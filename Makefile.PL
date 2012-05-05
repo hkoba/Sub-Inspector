@@ -26,9 +26,10 @@ use inc::Module::Install;
 
 all_from 'lib/Sub/Inspector.pm';
 
-
 test_requires 'Test::More'     => '0.88';
 test_requires 'Test::Requires' => '0.06';
+test_requires 'Path::Class';
+test_requires 'Project::Libs';
 
 auto_set_repository;
 
