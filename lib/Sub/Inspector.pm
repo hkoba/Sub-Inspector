@@ -9,7 +9,7 @@ use attributes;
 use Data::Dumper ();
 use Data::Dump::Streamer ();
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 sub new {
     my ($class, $code) = @_;

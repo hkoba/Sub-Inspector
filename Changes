@@ -1,6 +1,6 @@
 Revision history for Perl extension Sub::Inspector
 
-0.04 2012/06/01
+0.05 2012/06/01
     - add dump() method
       at Sat June  1 05:46 2013.
 
