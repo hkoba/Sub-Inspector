@@ -26,6 +26,8 @@ use inc::Module::Install;
 
 all_from 'lib/Sub/Inspector.pm';
 
+requires 'Data::Dump::Streamer';
+
 test_requires 'Test::More'     => '0.88';
 test_requires 'Test::Requires' => '0.06';
 test_requires 'Test::Exception';

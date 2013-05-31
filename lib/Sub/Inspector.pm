@@ -6,9 +6,10 @@ use B ();
 use Carp ();
 our @CARP_NOT;
 use attributes;
-use Data::Dumper;
+use Data::Dumper ();
+use Data::Dump::Streamer ();
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub new {
     my ($class, $code) = @_;
@@ -26,11 +27,14 @@ sub prototype { proto(@_) }
 sub attrs      { attributes::get(_code(@_)) }
 sub attributes { attrs(@_) }
 
+sub dump      { Data::Dump::Streamer::Dumper(_code(@_)) }
+sub as_string { Sub::Inspector::dump(@_) }
+
 sub _throw {
     local $Data::Dumper::Indent = 1;
     local $Data::Dumper::Terse  = 1;
     local @CARP_NOT = (__PACKAGE__);
-    Carp::croak "argument isn't a subroutine reference: " . Dumper($_[0]);
+    Carp::croak "argument isn't a subroutine reference: " . Data::Dumper::Dumper($_[0]);
 }
 
 sub _code {
@@ -55,38 +59,29 @@ Sub::Inspector - get infomation (prototype, attributes, name, etc) from a subrou
 =head1 SYNOPSIS
 
     use Sub::Inspector;
-
-
-    # get file, line, name (oo interface)
-
     use File::Spec;
+
     my $code = File::Spec->can('canonpath');
-    my $inspector = Sub::Inspector->new($code);
 
-    print $inspector->file; #=> '/Users/Cside/perl5/ ... /File/Spec/Unix.pm'
-    print $inspector->line; #=> 71
-    print $inspector->name; #=> 'canonpath'
-
-    # class method interface
-
-    print Sub::Inspector->file($code); #=> '/Users/Cside/perl5/ ... /File/Spec/Unix.pm'
+    print Sub::Inspector->file($code); #=> '/Users/Cside/perl5/ ...'
     print Sub::Inspector->line($code); #=> 71
     print Sub::Inspector->name($code); #=> 'canonpath'
+    print Sub::Inspector->dump($code); #=> 'sub { my ($self, $path) = @_; ...'
+
+    sub has_proto (&;@) {}
+    sub has_attrs :method :lvalue {}
+
+    print Sub::Inspector->proto(\&has_proto); #=> '&;@'
+    print Sub::Inspector->attrs(\&has_attrs); #=> ('method', 'lvalue')
 
 
-    # get prototype
+    # OO-Style
 
-    use Try::Tiny qw(try);
+    my $inspector = Sub::Inspector->new($code);
 
-    print Sub::Inspector->proto(\&try); #=> '&;@'
-
-
-    # get attributes
-
-    use AnyEvent::Handle;
-    my $code2 = AnyEvent::Handle->can('rbuf');
-
-    print Sub::Inspector->attrs($code2); #=> ('lvalue')
+    print $inspector->file; #=> '/Users/Cside/perl5/ ...'
+    print $inspector->line; #=> 71
+    print $inspector->name; #=> 'canonpath'
 
 =head1 DESCRIPTION
 
@@ -112,6 +107,10 @@ alias: prototype
 =item $inspector->attrs
 
 alias: attributes
+
+=item $inspector->dump
+
+alias: as_string
 
 =back
 
