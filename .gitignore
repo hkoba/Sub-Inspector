@@ -11,7 +11,6 @@ inc/
 Makefile*
 !Makefile.PL
 *blib
-META.*
 MYMETA.*
 *.out
 *.bak
