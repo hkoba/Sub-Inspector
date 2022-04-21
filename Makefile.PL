@@ -1,8 +1,9 @@
 #!perl
 use strict;
 use warnings;
+use FindBin;
 BEGIN {
-    unshift @INC, 'inc';
+    unshift @INC, "$FindBin::Bin/inc", $FindBin::Bin;
 
     # author requires, or bundled modules
     my @devmods = qw(
